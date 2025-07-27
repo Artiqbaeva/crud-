@@ -1,13 +1,13 @@
-import Blog from "../components/Blog";
-import CreateForm from "../components/CreateForm";
+import CreateStudentForm from "../components/CreateStudentForm";
+import StudentList from "../components/StudentList";
 
 const Home = () => {
   
   return (
-    <>
-      <CreateForm />
-      <Blog />
-    </>
+    <div className="p-6">
+    <CreateStudentForm />
+    <StudentList />
+  </div>
   );
 };
 
