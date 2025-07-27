@@ -1,8 +1,7 @@
-// src/api/hooks/useStudents.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "..";
 
-export const key = "students";
+export const key = "student";
 
 export interface Student {
   id: string;
@@ -25,26 +24,40 @@ export const useStudents = () => {
   const client = useQueryClient();
 
   const getStudents = () =>
-    useQuery<{ data: Student[] }>({
+    useQuery({
       queryKey: [key],
-      queryFn: () => api.get("/students").then((res) => res.data),
+      queryFn: () => api.get("/students"),
     });
 
   const createStudent = () =>
-    useMutation<void, unknown, CreateStudentInput>({
-      mutationFn: (body) => api.post("/students", body),
+    useMutation({
+      mutationFn: (body: CreateStudentInput) => api.post("/students", body),
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: [key] });
+      },
+    });
+
+  const updateStudent = () =>
+    useMutation({
+      mutationFn: ({ id, ...body }: { id: string } & CreateStudentInput) =>
+        api.put(`/students/${id}`, body),
       onSuccess: () => {
         client.invalidateQueries({ queryKey: [key] });
       },
     });
 
   const deleteStudent = () =>
-    useMutation<void, unknown, string>({
+    useMutation({
       mutationFn: (id: string) => api.delete(`/students/${id}`),
       onSuccess: () => {
         client.invalidateQueries({ queryKey: [key] });
       },
     });
 
-  return { getStudents, createStudent, deleteStudent };
-};
+  return {
+    useGetStudents: getStudents,
+    useCreateStudent: createStudent,
+    useUpdateStudent: updateStudent,
+    useDeleteStudent: deleteStudent,
+  };
+}

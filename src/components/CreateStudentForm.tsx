@@ -1,17 +1,33 @@
 import React from "react";
 import { useStudents } from "../api/hooks/useStudents";
 
-const CreateStudentForm = () => {
-  const { createStudent } = useStudents();
-  const { mutate: createMutate, isPending } = createStudent();
+const initialForm = {
+  fname: "",
+  lname: "",
+  birthdate: "",
+  address: "",
+  phone_number: "",
+};
 
-  const [form, setForm] = React.useState({
-    fname: "",
-    lname: "",
-    birthdate: "",
-    address: "",
-    phone_number: "",
-  });
+const CreateStudentForm = ({ editingStudent, onClearEdit }: any) => {
+  const { useCreateStudent, useUpdateStudent } = useStudents();
+
+  const { mutate: createMutate, isPending: isCreating } = useCreateStudent();
+  const { mutate: updateMutate, isPending: isUpdating } = useUpdateStudent();
+
+  const [form, setForm] = React.useState(initialForm);
+
+  React.useEffect(() => {
+    if (editingStudent) {
+      setForm({
+        fname: editingStudent.fname,
+        lname: editingStudent.lname,
+        birthdate: editingStudent.birthdate,
+        address: editingStudent.address,
+        phone_number: String(editingStudent.phone_number),
+      });
+    }
+  }, [editingStudent]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({
@@ -23,23 +39,33 @@ const CreateStudentForm = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    createMutate({
+    const payload = {
       ...form,
       phone_number: Number(form.phone_number),
-    });
+    };
 
-    setForm({
-      fname: "",
-      lname: "",
-      birthdate: "",
-      address: "",
-      phone_number: "",
-    });
+    if (editingStudent) {
+      updateMutate(
+        { id: editingStudent.id, ...payload },
+        {
+          onSuccess: () => {
+            setForm(initialForm);
+            onClearEdit();
+          },
+        }
+      );
+    } else {
+      createMutate(payload, {
+        onSuccess: () => setForm(initialForm),
+      });
+    }
   };
 
   return (
     <div className="container mx-auto my-4">
-      <h2 className="text-xl font-bold mb-3">Create Student</h2>
+      <h2 className="text-xl font-bold mb-3">
+        {editingStudent ? "Update Student" : "Create Student"}
+      </h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
         <input
           name="fname"
@@ -82,13 +108,33 @@ const CreateStudentForm = () => {
           required
           className="border px-3 py-1 rounded-lg border-gray-300"
         />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          {isPending ? "Creating..." : "Submit"}
-        </button>
+        <div className="flex items-center gap-3 col-span-2">
+          <button
+            type="submit"
+            disabled={isCreating || isUpdating}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            {isCreating || isUpdating
+              ? editingStudent
+                ? "Updating..."
+                : "Creating..."
+              : editingStudent
+              ? "Update"
+              : "Submit"}
+          </button>
+          {editingStudent && (
+            <button
+              type="button"
+              onClick={() => {
+                setForm(initialForm);
+                onClearEdit();
+              }}
+              className="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

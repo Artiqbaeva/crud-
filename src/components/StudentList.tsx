@@ -1,10 +1,11 @@
 import React from "react";
 import { useStudents } from "../api/hooks/useStudents";
 
-const StudentList = () => {
-  const { getStudents, deleteStudent } = useStudents();
-  const { data, isLoading, isError } = getStudents();
-  const { mutate: deleteMutate } = deleteStudent();
+const StudentList = ({ onEditStudent }: any) => {
+  const { useGetStudents, useDeleteStudent } = useStudents(); // ✅ Avval hooklarni chaqirib olasiz
+
+  const { data, isLoading, isError } = useGetStudents(); // ✅ Endi ishlaydi
+  const { mutate: deleteMutate } = useDeleteStudent();
 
   const students = Array.isArray(data?.data) ? data.data : [];
 
@@ -40,8 +41,11 @@ const StudentList = () => {
               >
                 Delete
               </button>
-              <button className="text-green-500 border border-green-300 px-2 py-0.5 rounded-md hover:bg-green-50">
-                Update
+              <button
+                onClick={() => onEditStudent(student)}
+                className="text-green-500 border border-green-300 px-2 py-0.5 rounded-md hover:bg-green-50"
+              >
+                Edit
               </button>
             </div>
           </div>
