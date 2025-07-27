@@ -41,7 +41,7 @@ const StudentList = ({ onEditStudent }: any) => {
                 {capitalize(student.fname)} {capitalize(student.lname)}
               </h3>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>
+                <li >
                   <strong>Birthdate:</strong>{" "}
                   {student.birthdate?.split("T")[0]}
                 </li>
