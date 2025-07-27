@@ -2,9 +2,9 @@ import React from "react";
 import { useStudents } from "../api/hooks/useStudents";
 
 const StudentList = ({ onEditStudent }: any) => {
-  const { useGetStudents, useDeleteStudent } = useStudents(); // ✅ Avval hooklarni chaqirib olasiz
+  const { useGetStudents, useDeleteStudent } = useStudents(); 
 
-  const { data, isLoading, isError } = useGetStudents(); // ✅ Endi ishlaydi
+  const { data, isLoading, isError } = useGetStudents();
   const { mutate: deleteMutate } = useDeleteStudent();
 
   const students = Array.isArray(data?.data) ? data.data : [];
